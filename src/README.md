@@ -31,10 +31,12 @@ python src/manage.py runserver 8182
 ```
 #### 3. Celery
 ```
+cd src/
 celery -A config worker --loglevel=info
 ```
 #### 4. WebSocket server (Daphne)
 ```
+cd src/
 daphne -p 8182 config.asgi:application
 ```
 
