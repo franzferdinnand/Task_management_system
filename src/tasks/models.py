@@ -13,7 +13,7 @@ class Task(models.Model):
 
     class Meta:
         db_table = "task"
-        ordering = ("-id",)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return self.title

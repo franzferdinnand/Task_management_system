@@ -4,22 +4,26 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import re_path
-from tasks.consumers import TaskConsumer
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-# WebSocket маршрути
-websocket_urlpatterns = [
-    re_path(r'ws/tasks/(?P<task_id>\d+)/$', TaskConsumer.as_asgi()),
-]
+django_asgi_app = get_asgi_application()
 
-# ASGI додаток
+# WebSocket routes
+def websocket_urlpatterns():
+    from tasks.consumers import TaskConsumer
+    return [
+        re_path(r'ws/tasks/(?P<task_id>\d+)/$', TaskConsumer.as_asgi()),
+    ]
+
+# ASGI application
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),  # Обробка HTTP-запитів
-    "websocket": AllowedHostsOriginValidator(  # Обмеження для WebSocket-з'єднань
-        AuthMiddlewareStack(  # Автентифікація для WebSocket
+    "http": django_asgi_app,
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
             URLRouter(
-                websocket_urlpatterns  # Маршрути для WebSocket
+                websocket_urlpatterns()
             )
         )
     ),

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+
 from utils.password_validation import validate_password
 
 
@@ -47,37 +48,3 @@ class UserSerializer(serializers.ModelSerializer):
         instance.is_active = False
         instance.save()
         return instance
-
-class UserPublicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-        ]
-
-
-class UserUpdateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "password",
-            "is_active",
-            "is_staff",
-        ]
-
-    def update(self, instance, validated_data):
-        password = validated_data.get('password', None)
-        if password:
-            instance.set_password(password)
-        return super().update(instance, validated_data)
