@@ -34,12 +34,18 @@ class TaskViewSet(ModelViewSet):
         """
         List all tasks. Use caching to optimize repeated queries.
         """
-        tasks = cache.get(self.CACHE_KEY)
+        page = request.query_params.get('page', 1)
+        cache_key = f"{self.CACHE_KEY}_page_{page}"
+
+        tasks = cache.get(cache_key)
         if tasks is None:
             queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
-            tasks = serializer.data
-            cache.set(self.CACHE_KEY, tasks, self.CACHE_TIMEOUT)
+            paginator = self.paginator
+            page_queryset = paginator.paginate_queryset(queryset, request)
+            serializer = self.get_serializer(page_queryset, many=True)
+            tasks = paginator.get_paginated_response(serializer.data).data
+            cache.set(cache_key, tasks, self.CACHE_TIMEOUT)
+
         return Response(tasks)
 
     def _clear_cache(self):
