@@ -37,7 +37,7 @@ celery -A config worker --loglevel=info
 #### 4. WebSocket server (Daphne)
 ```
 cd src/
-daphne -p 8182 config.asgi:application
+daphne -p 8282 config.asgi:application
 ```
 
 # USERS
